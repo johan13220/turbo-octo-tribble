@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=SEO Dashboard
+Comment=Analyse SEO : mots-clés, backlinks, audit technique, GSC
+Exec=seo-dashboard
+Icon=seo-dashboard
+Type=Application
+Categories=Utility;Network;WebDevelopment;
+Terminal=false
+StartupNotify=true

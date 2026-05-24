@@ -1,5 +1,16 @@
+import os
 from functools import lru_cache
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+def _resolve_env_file() -> str:
+    # AppRun sets SEO_DASHBOARD_ENV_FILE to ~/.config/seo-dashboard/.env
+    override = os.environ.get("SEO_DASHBOARD_ENV_FILE", "")
+    if override and Path(override).exists():
+        return override
+    return ".env"
 
 
 class Settings(BaseSettings):
@@ -14,7 +25,10 @@ class Settings(BaseSettings):
     gsc_credentials_path: str = ""
     gsc_token_path: str = "~/.seo_dashboard/gsc_token.json"
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(
+        env_file=_resolve_env_file(),
+        env_file_encoding="utf-8",
+    )
 
 
 @lru_cache(maxsize=1)
