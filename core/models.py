@@ -1,6 +1,16 @@
 from __future__ import annotations
 from datetime import datetime
 from pydantic import BaseModel, Field
+import pydantic as _pydantic
+
+# pydantic v1 ships as a p4a recipe on Android (pure Python).
+# v1 uses .dict() instead of .model_dump() — add the alias at class level.
+if int(_pydantic.VERSION.split(".")[0]) < 2:
+    _OrigBase = BaseModel
+
+    class BaseModel(_OrigBase):  # type: ignore[no-redef]
+        def model_dump(self, **kwargs):
+            return self.dict(**kwargs)
 
 
 class DomainOverview(BaseModel):

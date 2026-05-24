@@ -1,0 +1,19 @@
+# Android build requirements — used by buildozer (see buildozer.spec).
+# Do NOT install these for the desktop app — use requirements.txt instead.
+kivy==2.3.0
+kivymd==1.2.0
+requests
+httpx
+h11
+sniffio
+anyio
+certifi
+charset-normalizer
+urllib3
+idna
+beautifulsoup4
+python-dotenv
+diskcache
+pillow
+# pydantic v1 (pure Python — compatible with python-for-android recipe)
+pydantic==1.10.21

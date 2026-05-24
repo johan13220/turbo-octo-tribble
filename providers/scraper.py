@@ -6,6 +6,13 @@ import re
 import httpx
 from bs4 import BeautifulSoup
 
+# lxml is not available on Android — fall back to stdlib html.parser
+try:
+    from kivy.utils import platform as _kv_platform
+    _BS4_PARSER = "html.parser" if _kv_platform == "android" else "lxml"
+except ImportError:
+    _BS4_PARSER = "lxml"
+
 from core.cache import cached
 from core.models import (
     AuditIssue,
@@ -72,7 +79,7 @@ class ScraperProvider(SEOProvider):
             errors.append(AuditIssue(description=f"Could not fetch page: {exc}", count=1, category="crawl"))
             return AuditReport(health_score=0.0, errors=errors)
 
-        soup = BeautifulSoup(html, "lxml")
+        soup = BeautifulSoup(html, _BS4_PARSER)
 
         # Title
         title_tag = soup.find("title")
