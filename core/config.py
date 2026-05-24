@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     default_location_id: int = 2840
     max_keywords: int = 100
     report_output_dir: str = "./reports_output"
+    gsc_credentials_path: str = ""
+    gsc_token_path: str = "~/.seo_dashboard/gsc_token.json"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 

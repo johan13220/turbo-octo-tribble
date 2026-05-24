@@ -45,9 +45,17 @@ def render(domain: str, provider: SEOProvider, options: dict) -> None:
         "cpc": "CPC ($)",
         "traffic": "Est. Traffic",
         "url": "URL",
+        "clicks": "Clicks",
+        "impressions": "Impressions",
+        "ctr": "CTR (%)",
     })
-    st.dataframe(
-        df[["Keyword", "Position", "Search Volume", "Difficulty", "CPC ($)", "Est. Traffic", "URL"]],
-        use_container_width=True,
-        hide_index=True,
-    )
+
+    # Show GSC columns (clicks/impressions/CTR) when available, otherwise SEMrush columns
+    has_gsc_data = keywords[0].clicks is not None if keywords else False
+    if has_gsc_data:
+        cols = ["Keyword", "Position", "Clicks", "Impressions", "CTR (%)"]
+    else:
+        cols = ["Keyword", "Position", "Search Volume", "Difficulty", "CPC ($)", "Est. Traffic", "URL"]
+
+    available = [c for c in cols if c in df.columns]
+    st.dataframe(df[available], use_container_width=True, hide_index=True)

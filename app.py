@@ -12,6 +12,7 @@ from ui.tabs import (
     backlinks_tab,
     competitors_tab,
     export_tab,
+    gsc_tab,
     keywords_tab,
     overview_tab,
     technical_tab,
@@ -20,12 +21,13 @@ from ui.tabs import (
 domain, provider, options = render_sidebar()
 
 if domain:
-    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
         "Domain Overview",
         "Keywords",
         "Backlinks",
         "Technical Audit",
         "Competitors",
+        "Google Search Console",
         "Export Report",
     ])
     with tab1:
@@ -39,6 +41,8 @@ if domain:
     with tab5:
         competitors_tab.render(domain, provider, options)
     with tab6:
+        gsc_tab.render(domain, provider, options)
+    with tab7:
         export_tab.render(domain, provider, options)
 else:
     st.markdown(

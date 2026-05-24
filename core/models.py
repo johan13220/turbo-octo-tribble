@@ -10,6 +10,11 @@ class DomainOverview(BaseModel):
     organic_keywords: int | None = None
     backlinks_total: int | None = None
     referring_domains: int | None = None
+    # GSC fields
+    total_clicks: int | None = None
+    total_impressions: int | None = None
+    avg_ctr: float | None = None
+    avg_position: float | None = None
     fetched_at: datetime = Field(default_factory=datetime.now)
 
 
@@ -21,6 +26,26 @@ class Keyword(BaseModel):
     cpc: float | None = None
     url: str | None = None
     traffic: int | None = None
+    # GSC fields
+    clicks: int | None = None
+    impressions: int | None = None
+    ctr: float | None = None
+
+
+class GSCPage(BaseModel):
+    url: str
+    clicks: int = 0
+    impressions: int = 0
+    ctr: float = 0.0
+    position: float = 0.0
+
+
+class GSCDataPoint(BaseModel):
+    date: str
+    clicks: int = 0
+    impressions: int = 0
+    ctr: float = 0.0
+    position: float = 0.0
 
 
 class ReferringDomain(BaseModel):

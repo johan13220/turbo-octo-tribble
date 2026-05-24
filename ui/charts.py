@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
 
-from core.models import AuditReport, BacklinkSummary, CompetitorSnapshot, Keyword
+from core.models import AuditReport, BacklinkSummary, CompetitorSnapshot, GSCDataPoint, Keyword
 
 
 def keyword_scatter(keywords: list[Keyword]) -> go.Figure:
@@ -138,6 +138,49 @@ def competitor_bar(snapshots: list[CompetitorSnapshot], metric: str = "organic_t
         xaxis_title=labels.get(metric, metric),
         height=max(300, len(snapshots) * 60),
         margin=dict(t=50, b=40),
+    )
+    return fig
+
+
+def gsc_performance_chart(data_points: list[GSCDataPoint]) -> go.Figure:
+    """Dual-axis line chart: clicks + impressions over time, with avg position."""
+    if not data_points:
+        return _empty("No performance data available")
+
+    dates = [p.date for p in data_points]
+    clicks = [p.clicks for p in data_points]
+    impressions = [p.impressions for p in data_points]
+    positions = [p.position for p in data_points]
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=dates, y=clicks, name="Clicks",
+        line=dict(color="#1976d2", width=2),
+        yaxis="y1",
+    ))
+    fig.add_trace(go.Scatter(
+        x=dates, y=impressions, name="Impressions",
+        line=dict(color="#90caf9", width=2, dash="dot"),
+        yaxis="y1",
+    ))
+    fig.add_trace(go.Scatter(
+        x=dates, y=positions, name="Avg Position",
+        line=dict(color="#f57c00", width=2),
+        yaxis="y2",
+    ))
+    fig.update_layout(
+        title="Search Performance Over Time",
+        height=380,
+        margin=dict(t=50, b=40),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        yaxis=dict(title="Clicks / Impressions"),
+        yaxis2=dict(
+            title="Avg Position",
+            overlaying="y",
+            side="right",
+            autorange="reversed",
+            showgrid=False,
+        ),
     )
     return fig
 
