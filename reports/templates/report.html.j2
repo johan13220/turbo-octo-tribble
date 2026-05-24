@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEO Report — {{ domain }}</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1a1a2e; background: #f8f9fa; }
+  .cover { background: linear-gradient(135deg, #1976d2, #0d47a1); color: white; padding: 60px 40px; text-align: center; }
+  .cover h1 { font-size: 2.4em; margin-bottom: 10px; }
+  .cover p { opacity: 0.8; font-size: 1.1em; }
+  .container { max-width: 960px; margin: 0 auto; padding: 40px 20px; }
+  .section { background: white; border-radius: 12px; padding: 30px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .section h2 { font-size: 1.4em; color: #1976d2; margin-bottom: 20px; border-bottom: 2px solid #e3f2fd; padding-bottom: 10px; }
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 20px; }
+  .metric { background: #f0f7ff; border-radius: 8px; padding: 16px; text-align: center; }
+  .metric .value { font-size: 1.8em; font-weight: 700; color: #1976d2; }
+  .metric .label { font-size: 0.75em; color: #607d8b; text-transform: uppercase; margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+  th { background: #e3f2fd; color: #1565c0; padding: 10px 12px; text-align: left; }
+  td { padding: 8px 12px; border-bottom: 1px solid #f0f0f0; }
+  tr:hover td { background: #fafafa; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.75em; font-weight: 600; }
+  .badge-error { background: #ffebee; color: #c62828; }
+  .badge-warning { background: #fff9c4; color: #f57f17; }
+  .badge-notice { background: #e8eaf6; color: #283593; }
+  .chart-container { margin: 20px 0; }
+  .footer { text-align: center; color: #9e9e9e; font-size: 0.8em; padding: 20px; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>SEO Report</h1>
+  <p>{{ domain }}</p>
+  <p style="margin-top:8px; font-size:0.9em;">Generated on {{ generated_at }}</p>
+</div>
+
+<div class="container">
+
+  <!-- Domain Overview -->
+  <div class="section">
+    <h2>Domain Overview</h2>
+    <div class="metrics">
+      <div class="metric">
+        <div class="value">{{ overview.authority_score if overview.authority_score is not none else 'N/A' }}</div>
+        <div class="label">Authority Score</div>
+      </div>
+      <div class="metric">
+        <div class="value">
+          {% if overview.organic_traffic %}
+            {% if overview.organic_traffic >= 1000000 %}{{ "%.1f"|format(overview.organic_traffic / 1000000) }}M
+            {% elif overview.organic_traffic >= 1000 %}{{ "%.1f"|format(overview.organic_traffic / 1000) }}K
+            {% else %}{{ overview.organic_traffic }}{% endif %}
+          {% else %}N/A{% endif %}
+        </div>
+        <div class="label">Organic Traffic</div>
+      </div>
+      <div class="metric">
+        <div class="value">
+          {% if overview.organic_keywords %}
+            {% if overview.organic_keywords >= 1000 %}{{ "%.1f"|format(overview.organic_keywords / 1000) }}K
+            {% else %}{{ overview.organic_keywords }}{% endif %}
+          {% else %}N/A{% endif %}
+        </div>
+        <div class="label">Organic Keywords</div>
+      </div>
+      <div class="metric">
+        <div class="value">{{ overview.backlinks_total if overview.backlinks_total is not none else 'N/A' }}</div>
+        <div class="label">Backlinks</div>
+      </div>
+      <div class="metric">
+        <div class="value">{{ overview.referring_domains if overview.referring_domains is not none else 'N/A' }}</div>
+        <div class="label">Referring Domains</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Keywords -->
+  {% if keywords %}
+  <div class="section">
+    <h2>Top Keywords ({{ keywords|length }})</h2>
+    {% if charts.keyword_scatter %}
+    <div class="chart-container">{{ charts.keyword_scatter | safe }}</div>
+    {% endif %}
+    {% if charts.position_hist %}
+    <div class="chart-container">{{ charts.position_hist | safe }}</div>
+    {% endif %}
+    <table>
+      <thead>
+        <tr><th>Keyword</th><th>Position</th><th>Search Volume</th><th>Difficulty</th><th>CPC ($)</th></tr>
+      </thead>
+      <tbody>
+        {% for kw in keywords[:30] %}
+        <tr>
+          <td>{{ kw.keyword }}</td>
+          <td>{{ kw.position if kw.position is not none else 'N/A' }}</td>
+          <td>{{ kw.search_volume if kw.search_volume is not none else 'N/A' }}</td>
+          <td>{{ "%.1f"|format(kw.difficulty) if kw.difficulty is not none else 'N/A' }}</td>
+          <td>{{ "%.2f"|format(kw.cpc) if kw.cpc is not none else 'N/A' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  <!-- Backlinks -->
+  <div class="section">
+    <h2>Backlinks</h2>
+    <div class="metrics">
+      <div class="metric">
+        <div class="value">{{ backlinks.total_backlinks }}</div>
+        <div class="label">Total Backlinks</div>
+      </div>
+      <div class="metric">
+        <div class="value">{{ backlinks.referring_domains }}</div>
+        <div class="label">Referring Domains</div>
+      </div>
+      <div class="metric">
+        <div class="value">{{ backlinks.new_backlinks }}</div>
+        <div class="label">New Backlinks</div>
+      </div>
+      <div class="metric">
+        <div class="value">{{ backlinks.lost_backlinks }}</div>
+        <div class="label">Lost Backlinks</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Technical Audit -->
+  <div class="section">
+    <h2>Technical Audit</h2>
+    {% if charts.audit_gauge %}
+    <div class="chart-container">{{ charts.audit_gauge | safe }}</div>
+    {% endif %}
+    {% if audit.errors %}
+    <h3 style="color:#c62828; margin: 16px 0 8px;">Errors ({{ audit.errors|length }})</h3>
+    {% for issue in audit.errors %}
+    <p><span class="badge badge-error">Error</span> {{ issue.description }} — {{ issue.count }} occurrence(s)</p>
+    {% endfor %}
+    {% endif %}
+    {% if audit.warnings %}
+    <h3 style="color:#f57f17; margin: 16px 0 8px;">Warnings ({{ audit.warnings|length }})</h3>
+    {% for issue in audit.warnings %}
+    <p><span class="badge badge-warning">Warning</span> {{ issue.description }} — {{ issue.count }} occurrence(s)</p>
+    {% endfor %}
+    {% endif %}
+    {% if audit.notices %}
+    <h3 style="color:#283593; margin: 16px 0 8px;">Notices ({{ audit.notices|length }})</h3>
+    {% for issue in audit.notices %}
+    <p><span class="badge badge-notice">Notice</span> {{ issue.description }}</p>
+    {% endfor %}
+    {% endif %}
+    {% if not audit.errors and not audit.warnings and not audit.notices %}
+    <p style="color: #2e7d32;">No issues detected.</p>
+    {% endif %}
+  </div>
+
+  <!-- Competitors -->
+  {% if competitors %}
+  <div class="section">
+    <h2>Competitor Comparison</h2>
+    {% if charts.competitor_bar %}
+    <div class="chart-container">{{ charts.competitor_bar | safe }}</div>
+    {% endif %}
+    <table>
+      <thead>
+        <tr><th>Domain</th><th>Authority Score</th><th>Organic Traffic</th><th>Organic Keywords</th></tr>
+      </thead>
+      <tbody>
+        {% for c in competitors %}
+        <tr>
+          <td>{{ c.domain }}</td>
+          <td>{{ c.authority_score if c.authority_score is not none else 'N/A' }}</td>
+          <td>{{ c.organic_traffic if c.organic_traffic is not none else 'N/A' }}</td>
+          <td>{{ c.organic_keywords if c.organic_keywords is not none else 'N/A' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+</div>
+
+<div class="footer">SEO Dashboard — {{ generated_at }}</div>
+</body>
+</html>
